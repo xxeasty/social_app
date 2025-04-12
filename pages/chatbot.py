@@ -150,11 +150,12 @@ def render_chatbot():
         and st.session_state.chat_history[-1]["content"] == "🤖 GPT가 생각중입니다..."
     ):
         try:
-            res = client.chat.completions.create(
-                model="gpt-4",
-                messages=st.session_state.messages
-            )
-            reply = res.choices[0].message.content
+            with st.spinner(""):
+                res = client.chat.completions.create(
+                    model="gpt-4",
+                    messages=st.session_state.messages
+                )
+                reply = res.choices[0].message.content
         except Exception as e:
             reply = "⚠️ GPT 응답에 실패했어요."
             st.error(f"GPT 에러: {e}")
