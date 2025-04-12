@@ -26,20 +26,6 @@ def message_html(content, role):
 
 
 def render_chatbot():
-    st.markdown("""
-        <style>
-        .chat-box {
-            height: 500px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            padding: 15px 10px;
-            border-radius: 12px;
-            background-color: #fafafa;
-            margin-bottom: 1rem;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
     st.title("💬 감정 친구 GPT 챗봇")
 
     if "user_info" not in st.session_state:
@@ -53,24 +39,37 @@ def render_chatbot():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    # ✅ chatbox 먼저 렌더링해야 위에 붙는다
+    # 💬 전체 메시지 HTML 생성
     chat_html = ""
     for msg in st.session_state.chat_history:
         chat_html += message_html(msg["content"], msg["role"])
 
+    # ✅ chatbox 스타일 + 자동 스크롤
     components.html(f"""
-        <div id='chatbox' class='chat-box'>
+        <div id='chatbox' style="
+            height: 500px;
+            overflow-y: auto;
+            border: 2px solid #888;
+            border-radius: 16px;
+            background-color: #f2f2f2;
+            padding: 15px 10px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        ">
             {chat_html}
         </div>
         <script>
-            var chatBox = document.getElementById("chatbox");
-            if (chatBox) {{
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }}
+            const box = document.getElementById("chatbox");
+            setTimeout(() => {{
+                if (box) {{
+                    box.scrollTop = box.scrollHeight;
+                }}
+            }}, 100);
         </script>
-    """, height=520, scrolling=False)
+    """, height=530, scrolling=False)
 
-    # ⌨️ 입력창은 항상 아래에
+    # 입력창
     with st.form("chat_form", clear_on_submit=True):
         user_input = st.text_input("입력", placeholder="친구에게 말해보세요!", label_visibility="collapsed")
         submitted = st.form_submit_button("보내기")
@@ -84,6 +83,7 @@ def render_chatbot():
         else:
             st.info("😐 중립적인 표현이에요.")
 
+        # 내 메시지 먼저 출력
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
 
