@@ -1,5 +1,5 @@
 import streamlit as st
-st.set_page_config(page_title="사회적 챗봇", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="사회적 챗봇", layout="centered")
 
 st.title("💬 사회적 상호작용 향상 서비스")
 st.markdown("""

@@ -3,7 +3,7 @@ from openai import OpenAI
 from textblob import TextBlob
 from utils.logic import make_system_message
 
-st.set_page_config(page_title="챗봇", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="챗봇", layout="centered")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 st.title("🤖 감정 친구 GPT 챗봇")

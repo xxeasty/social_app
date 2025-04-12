@@ -1,7 +1,7 @@
 import streamlit as st
 from utils.logic import calculate_score
 
-st.set_page_config(page_title="설문", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="설문", layout="centered")
 st.title("📝 정신 건강 설문")
 
 with st.form("mental_health_survey"):
