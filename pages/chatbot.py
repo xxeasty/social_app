@@ -7,7 +7,7 @@ st.set_page_config(page_title="감정 친구 GPT", layout="centered")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 
-# 말풍선 스타일 메시지 렌더링 함수
+# 💬 말풍선 메시지 렌더링용 HTML 함수
 def message_html(content, role):
     color = "#DCF8C6" if role == "user" else "#F1F0F0"
     align = "flex-start" if role == "user" else "flex-end"
@@ -36,11 +36,10 @@ def render_chatbot():
         st.session_state.messages = [
             {"role": "system", "content": make_system_message(st.session_state.user_info)}
         ]
-
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    # --- UI: 채팅박스 박스 영역 ---
+    # 💬 채팅창 스타일 정의
     st.markdown("""
         <style>
         .chat-box {
@@ -54,15 +53,19 @@ def render_chatbot():
         </style>
     """, unsafe_allow_html=True)
 
-    chat_placeholder = st.empty()
+    # --- 대화 HTML 조립해서 한 번에 삽입 ---
+    chat_html = ""
+    for msg in st.session_state.chat_history:
+        chat_html += message_html(msg["content"], msg["role"])
 
-    with chat_placeholder.container():
-        st.markdown("<div class='chat-box'>", unsafe_allow_html=True)
-        for msg in st.session_state.chat_history:
-            st.markdown(message_html(msg["content"], msg["role"]), unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+    # --- 출력: 말풍선 전체를 chat-box 안에 한 번에 렌더링 ---
+    st.markdown(f"""
+        <div class='chat-box'>
+            {chat_html}
+        </div>
+    """, unsafe_allow_html=True)
 
-    # --- 입력창 ---
+    # 입력창
     with st.form("chat_form", clear_on_submit=True):
         user_input = st.text_input("입력", placeholder="친구에게 말해보세요!", label_visibility="collapsed")
         submitted = st.form_submit_button("보내기")
@@ -71,24 +74,17 @@ def render_chatbot():
         # 감정 피드백
         polarity = TextBlob(user_input).sentiment.polarity
         if polarity < -0.3:
-            st.error("😢 부정적인 감정이 감지되었어요. 감정을 나누는 건 좋은 시작이에요.")
+            st.error("😢 부정적인 감정이 감지되었어요.")
         elif polarity > 0.5:
-            st.success("😊 긍정적인 표현이에요! 좋아요!")
+            st.success("😊 긍정적인 표현이에요!")
         else:
-            st.info("😐 중립적인 표현이에요. 감정을 더 표현해보는 것도 좋아요.")
+            st.info("😐 중립적인 표현이에요.")
 
-        # 유저 메시지 표시
+        # 유저 메시지 추가
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
 
-        # 대화 즉시 갱신
-        with chat_placeholder.container():
-            st.markdown("<div class='chat-box'>", unsafe_allow_html=True)
-            for msg in st.session_state.chat_history:
-                st.markdown(message_html(msg["content"], msg["role"]), unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        # GPT 응답 받기
+        # GPT 응답
         with st.spinner("GPT 친구가 생각 중..."):
             res = client.chat.completions.create(
                 model="gpt-4",
@@ -96,18 +92,22 @@ def render_chatbot():
             )
         reply = res.choices[0].message.content
 
-        # GPT 메시지 표시
+        # GPT 메시지 추가
         st.session_state.chat_history.append({"role": "assistant", "content": reply})
         st.session_state.messages.append({"role": "assistant", "content": reply})
 
-        # 최종 출력 다시 갱신
-        with chat_placeholder.container():
-            st.markdown("<div class='chat-box'>", unsafe_allow_html=True)
-            for msg in st.session_state.chat_history:
-                st.markdown(message_html(msg["content"], msg["role"]), unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+        # 최신 대화 다시 렌더링
+        chat_html = ""
+        for msg in st.session_state.chat_history:
+            chat_html += message_html(msg["content"], msg["role"])
 
-    # 설문으로 돌아가기
+        st.markdown(f"""
+            <div class='chat-box'>
+                {chat_html}
+            </div>
+        """, unsafe_allow_html=True)
+
+    # ↩️ 설문 다시 하기
     if st.button("↩️ 설문 다시 하기"):
         st.session_state.page = "survey"
         st.session_state.messages = []
