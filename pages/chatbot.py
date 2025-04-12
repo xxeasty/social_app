@@ -1,10 +1,12 @@
 import streamlit as st
+st.set_page_config(page_title="감정 챗봇", layout="centered")
+
 from openai import OpenAI
 from textblob import TextBlob
 from utils.logic import make_system_message
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-st.set_page_config(page_title="감정 챗봇", layout="centered")
+
 
 def message_html(content, role):
     color = "#DCF8C6" if role == "user" else "#F1F0F0"
