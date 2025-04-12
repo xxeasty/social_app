@@ -4,7 +4,7 @@ from utils.logic import make_system_message
 import streamlit.components.v1 as components
 import time
 
-st.set_page_config(page_title="감정 친구 GPT", layout="centered", initial_sidebar_state="hidden")
+st.set_page_config(page_title="감정 친구 GPT", layout="centered", initial_sidebar_state="collapsed")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 
