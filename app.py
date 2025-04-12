@@ -2,13 +2,10 @@ import streamlit as st
 from openai import OpenAI
 from textblob import TextBlob
 
-# ✅ OpenAI 설정
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-# ✅ 페이지 기본 설정
 st.set_page_config(page_title="사회적 챗봇", layout="centered")
 
-# ✅ 페이지 상태 초기화
+# 페이지 및 상태 초기화
 if "page" not in st.session_state:
     st.session_state.page = "survey"
 
@@ -18,77 +15,103 @@ if "user_info" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# ✅ 사용자 상태 진단 함수 (dataset 기반 룰)
-def calculate_mental_scores(feeling, stress_level, sleep_quality):
-    score = 0
-    if "불안" in feeling or "걱정" in feeling:
-        score += 2
-    if stress_level == "높음":
-        score += 2
-    elif stress_level == "보통":
-        score += 1
-    if sleep_quality == "나쁨":
-        score += 1.5
-    elif sleep_quality == "보통":
-        score += 0.5
-    return min(round(score, 1), 5.0)
+# 진단 점수 계산 (체크된 증상 수 기반)
+def calculate_score(responses: dict):
+    symptom_keys = [
+        "Depression", "Anxiety", "Panic attack", "Suicidal thoughts",
+        "Insomnia", "Mood swings", "Social withdrawal",
+        "Loss of interest", "Fatigue", "Concentration difficulty"
+    ]
+    score = sum([1 for k in symptom_keys if responses.get(k)])
+    return min(round(score / len(symptom_keys) * 5, 2), 5.0)  # 5점 만점 정규화
 
-# ✅ 설문 페이지
+# 설문 페이지
 if st.session_state.page == "survey":
-    st.title("📝 사회적 진단 설문")
+    st.title("📝 정신 건강 자기 보고 설문")
 
-    with st.form("survey_form"):
-        name = st.text_input("이름을 입력하세요")
-        feeling = st.text_area("요즘 기분은 어떤가요?")
-        stress = st.selectbox("스트레스 수준은?", ["낮음", "보통", "높음"])
-        sleep = st.selectbox("수면 상태는 어떤가요?", ["좋음", "보통", "나쁨"])
+    with st.form("mental_health_survey"):
+        age = st.number_input("나이를 입력하세요", min_value=10, max_value=100, step=1)
+        gender = st.selectbox("성별을 선택하세요", ["남성", "여성", "기타/답변하고 싶지 않음"])
+        occupation = st.text_input("현재 직업(또는 학업 상태)를 입력하세요")
+
+        st.markdown("### 최근 2주간 다음 증상을 경험했나요?")
+        depression = st.checkbox("▪️ 우울감을 자주 느낌")
+        anxiety = st.checkbox("▪️ 불안하거나 초조함을 느낌")
+        panic = st.checkbox("▪️ 공황 발작")
+        suicidal = st.checkbox("▪️ 자살 충동")
+        insomnia = st.checkbox("▪️ 불면증")
+        mood = st.checkbox("▪️ 기분 변화가 심함")
+        social = st.checkbox("▪️ 사람을 피하게 됨")
+        interest = st.checkbox("▪️ 관심과 흥미가 줄어듦")
+        fatigue = st.checkbox("▪️ 쉽게 피로함")
+        concentration = st.checkbox("▪️ 집중이 잘 안 됨")
+
+        self_esteem = st.selectbox("자존감 상태", ["높음", "보통", "낮음"])
+        seeking_help = st.radio("최근 치료나 상담을 받으려 시도해본 적 있나요?", ["예", "아니오"])
+
         submitted = st.form_submit_button("제출하고 대화 시작하기")
 
     if submitted:
-        score = calculate_mental_scores(feeling, stress, sleep)
-        st.session_state.user_info = {
-            "name": name,
-            "feeling": feeling,
-            "stress": stress,
-            "sleep": sleep,
-            "score": score
+        answers = {
+            "Age": age,
+            "Gender": gender,
+            "Occupation": occupation,
+            "Depression": depression,
+            "Anxiety": anxiety,
+            "Panic attack": panic,
+            "Suicidal thoughts": suicidal,
+            "Insomnia": insomnia,
+            "Mood swings": mood,
+            "Social withdrawal": social,
+            "Loss of interest": interest,
+            "Fatigue": fatigue,
+            "Concentration difficulty": concentration,
+            "Self-esteem": self_esteem,
+            "Seeking help": seeking_help
         }
+
+        score = calculate_score(answers)
+
+        st.session_state.user_info = answers
+        st.session_state.user_info["score"] = score
+
         st.session_state.page = "chat"
         st.session_state.messages = [
             {
                 "role": "system",
-                "content": f"너는 {name}이라는 사용자의 감정 상태를 고려해 따뜻하고 섬세하게 대화하는 친구야. "
-                           f"현재 사용자는 최근 스트레스 '{stress}', 수면 상태 '{sleep}', 진단 점수 {score}/5 상태야. "
-                           f"위로와 공감 위주로 반응해줘."
+                "content": (
+                    f"너는 {occupation}인 {gender} 사용자({age}세)를 돕는 따뜻한 친구야. "
+                    f"이 사용자는 자가 진단 점수 {score}/5이며, "
+                    f"최근 자존감은 '{self_esteem}', 상담 시도 여부는 '{seeking_help}' 상태야. "
+                    f"가능한 한 공감과 위로 중심으로 대화해줘."
+                )
             }
         ]
         st.rerun()
 
-# ✅ 챗봇 페이지
+# 챗봇 페이지
 elif st.session_state.page == "chat":
-    st.title(f"👋 {st.session_state.user_info['name']}님의 감정 친구 챗봇")
+    user = st.session_state.user_info
+    st.title(f"👋 {user['Occupation']}인 {user['Age']}세 {user['Gender']}님의 감정 친구 챗봇")
 
     with st.form("chat_form", clear_on_submit=True):
         user_input = st.text_input("💬 친구에게 하고 싶은 말:", placeholder="예: 요즘 기분이 좀 우울해요...", label_visibility="collapsed")
         submitted = st.form_submit_button("보내기")
 
     if submitted and user_input:
-        # 감정 분석
         blob = TextBlob(user_input)
         polarity = blob.sentiment.polarity
 
         if polarity < -0.3:
-            st.error("😢 조금 부정적인 표현이에요. 솔직한 감정 공유는 좋은 첫걸음이에요.")
+            st.error("😢 조금 부정적인 표현이에요. 감정을 털어놓는 건 좋아요.")
         elif polarity > 0.5:
-            st.success("😊 아주 긍정적인 말이에요! 계속 그렇게 말해보세요!")
+            st.success("😊 아주 긍정적인 표현이에요! 좋아요!")
         else:
-            st.info("😐 중립적인 표현이네요. 감정을 더 표현해보는 건 어때요?")
+            st.info("😐 중립적인 표현이에요. 감정을 더 표현해보는 것도 좋아요.")
 
-        # 메시지 저장
         st.session_state.messages.append({"role": "user", "content": user_input})
 
-        # GPT 응답
-        with st.spinner("GPT 친구가 답장을 생각 중이에요..."):
+        with st.spinner("GPT 친구가 생각 중..."):
             response = client.chat.completions.create(
                 model="gpt-4",
                 messages=st.session_state.messages
@@ -97,7 +120,6 @@ elif st.session_state.page == "chat":
 
         st.session_state.messages.append({"role": "assistant", "content": reply})
 
-    # 대화 출력
     st.markdown("---")
     for msg in st.session_state.messages[1:]:  # system 제외
         if msg["role"] == "user":
@@ -105,7 +127,6 @@ elif st.session_state.page == "chat":
         elif msg["role"] == "assistant":
             st.markdown(f"🤖 **GPT 친구:** {msg['content']}")
 
-    # 뒤로 가기 버튼
     if st.button("↩️ 설문 다시 하기"):
         st.session_state.page = "survey"
         st.rerun()
