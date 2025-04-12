@@ -1,5 +1,5 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 from textblob import TextBlob
 
 # 기본 설정
@@ -7,7 +7,7 @@ st.set_page_config(page_title="사회적 챗봇", layout="centered")
 st.title("🧠 사회적 상호작용 연습 챗봇")
 
 # API 키 불러오기
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # 사용자 입력 받기
 user_input = st.text_input("친구에게 하고 싶은 말을 써보세요:")
@@ -15,14 +15,16 @@ user_input = st.text_input("친구에게 하고 싶은 말을 써보세요:")
 if st.button("보내기") and user_input:
     # GPT 응답
     with st.spinner("GPT 친구가 답장 중..."):
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "너는 감정적으로 공감해주는 따뜻한 친구야."},
-                {"role": "user", "content": user_input}
-            ]
-        )
-        reply = response['choices'][0]['message']['content']
+        
+        response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "너는 따뜻한 친구처럼 행동해야 해."},
+            {"role": "user", "content": user_input}
+        ]
+    )
+
+    reply = response.choices[0].message.content
 
     # 감정 분석
     blob = TextBlob(user_input)
