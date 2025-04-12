@@ -121,7 +121,7 @@ def render_chatbot():
         and len(st.session_state.chat_history) > 0
         and st.session_state.chat_history[-1]["role"] == "assistant"
         and st.session_state.chat_history[-1]["content"] == "..."
-        ):
+    ):
         try:
             with st.spinner("GPT 친구가 생각 중..."):  # 내부 처리용 spinner
                 res = client.chat.completions.create(
