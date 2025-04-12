@@ -11,7 +11,7 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 def message_html(content, role):
     color = "#DCF8C6" if role == "user" else "#F1F0F0"
     align = "flex-start" if role == "user" else "flex-end"
-    text_align = "left" if role == "user" else "right"
+    text_align = "left"
     border_radius = "18px 18px 18px 0px" if role == "user" else "18px 18px 0px 18px"
 
     return f"""
@@ -84,6 +84,15 @@ def render_chatbot():
     </script>
     """, height=530, scrolling=False)
 
+    st.markdown("""
+    <style>
+    section[data-testid="stForm"] {
+        margin-top: 0px !important;
+        padding-top: 0px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     # 입력창
     with st.form("chat_form", clear_on_submit=True):
         user_input = st.text_input("입력", placeholder="친구에게 말해보세요!", label_visibility="collapsed")
@@ -101,6 +110,8 @@ def render_chatbot():
         # 내 메시지 먼저 출력
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
+
+        st.rerun()
 
         # GPT 응답
         with st.spinner("GPT 친구가 생각 중..."):
