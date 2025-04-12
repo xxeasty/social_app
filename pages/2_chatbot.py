@@ -48,4 +48,4 @@ for msg in st.session_state.messages[1:]:
         st.markdown(f"🤖 **GPT 친구:** {msg['content']}")
 
 if st.button("↩️ 설문 다시 하기"):
-    st.switch_page("pages/1_survey.py")
+    st.switch_page("1_survey.py")

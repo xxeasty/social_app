@@ -37,4 +37,4 @@ if submitted:
         "seeking_help": seeking_help,
         "score": score
     }
-    st.switch_page("pages/2_chatbot.py")
+    st.switch_page("2_chatbot.py")
