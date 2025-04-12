@@ -13,16 +13,21 @@ def message_html(content, role):
     color = "#DCF8C6" if role == "user" else "#F1F0F0"
     align = "flex-start" if role == "user" else "flex-end"
     border_radius = "18px 18px 18px 0px" if role == "user" else "18px 18px 0px 18px"
-    opacity = "0.6" if role == "assistant" and content.startswith("🤖 GPT가 생각중") else "1.0"
-    font_style = "italic" if "생각중" in content else "normal"
+    is_loading = content.strip() == "🤖 GPT가 생각중입니다..."
+    opacity = "0.6" if is_loading else "1.0"
+    font_style = "italic" if is_loading else "normal"
+
+    loader_html = """
+        <div class='loader'></div>
+    """ if is_loading else ""
 
     return f"""
     <div style='display: flex; justify-content: {align}; margin: 5px 0;'>
         <div style='max-width: 80%; background-color: {color}; padding: 10px 15px;
                     border-radius: {border_radius}; text-align: left;
                     font-size: 16px; line-height: 1.4; word-wrap: break-word;
-                    opacity: {opacity}; font-style: {font_style};'>
-            {content}
+                    opacity: {opacity}; font-style: {font_style}; display: inline-flex; align-items: center;'>
+            {content}{loader_html}
         </div>
     </div>
     """
@@ -59,6 +64,21 @@ def render_chatbot():
           border-radius: 8px;
           border: 2px solid transparent;
           background-clip: content-box;
+        }}
+        .loader {{
+          border: 3px solid #ccc;
+          border-top: 3px solid #888;
+          border-radius: 50%;
+          width: 12px;
+          height: 12px;
+          animation: spin 0.8s linear infinite;
+          display: inline-block;
+          margin-left: 8px;
+          vertical-align: middle;
+        }}
+        @keyframes spin {{
+          0% {{ transform: rotate(0deg); }}
+          100% {{ transform: rotate(360deg); }}
         }}
         </style>
 
@@ -137,7 +157,7 @@ def render_chatbot():
         st.rerun()
 
     if st.session_state.get("pending_gpt", False):
-        time.sleep(0.8)  # 💡 약간의 지연으로 자연스러운 GPT 등장 연출
+        time.sleep(0.8)
         st.session_state.chat_history.append({"role": "assistant", "content": "🤖 GPT가 생각중입니다..."})
         st.session_state["waiting_for_response"] = True
         st.session_state["pending_gpt"] = False
@@ -150,12 +170,11 @@ def render_chatbot():
         and st.session_state.chat_history[-1]["content"] == "🤖 GPT가 생각중입니다..."
     ):
         try:
-            with st.spinner(""):
-                res = client.chat.completions.create(
-                    model="gpt-4",
-                    messages=st.session_state.messages
-                )
-                reply = res.choices[0].message.content
+            res = client.chat.completions.create(
+                model="gpt-4",
+                messages=st.session_state.messages
+            )
+            reply = res.choices[0].message.content
         except Exception as e:
             reply = "⚠️ GPT 응답에 실패했어요."
             st.error(f"GPT 에러: {e}")
