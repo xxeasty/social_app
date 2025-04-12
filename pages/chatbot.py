@@ -129,18 +129,15 @@ def render_chatbot():
                     messages=st.session_state.messages
                 )
                 reply = res.choices[0].message.content
-
-    # 마지막 GPT 말풍선 내용 교체
-            st.session_state.chat_history[-1]["content"] = reply
-            st.session_state.messages.append({"role": "assistant", "content": reply})
-            st.session_state["waiting_for_response"] = False
-            st.rerun()
-
+        
         except Exception as e:
-            st.session_state.chat_history[-1]["content"] = "⚠️ GPT 응답에 실패했어요."
-            st.session_state["waiting_for_response"] = False
+            reply = "⚠️ GPT 응답에 실패했어요."
             st.error(f"GPT 응답 에러: {e}")
 
+        st.session_state.chat_history[-1]["content"] = reply
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        st.session_state["waiting_for_response"] = False
+        st.rerun()
 
     if st.button("↩️ 설문 다시 하기"):
         st.session_state.page = "survey"
