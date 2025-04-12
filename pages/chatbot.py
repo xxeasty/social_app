@@ -118,6 +118,7 @@ def render_chatbot():
     # ✅ 사용자가 메시지를 입력한 직후에만 GPT 응답
     if (
         st.session_state.get("waiting_for_response")
+        and len(st.session_state.chat_history) > 0
         and st.session_state.chat_history[-1]["role"] == "assistant"
         and st.session_state.chat_history[-1]["content"] == "..."
         ):
