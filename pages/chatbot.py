@@ -2,11 +2,13 @@ import streamlit as st
 from openai import OpenAI
 from textblob import TextBlob
 from utils.logic import make_system_message
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="감정 친구 GPT", layout="centered")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 
+# 💬 말풍선 메시지 렌더링용 HTML 함수
 def message_html(content, role):
     color = "#DCF8C6" if role == "user" else "#F1F0F0"
     align = "flex-start" if role == "user" else "flex-end"
@@ -38,7 +40,28 @@ def render_chatbot():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    # 💬 채팅창 스타일 정의
+    chat_placeholder = st.empty()
+
+    def render_chatbox():
+        chat_html = ""
+        for msg in st.session_state.chat_history:
+            chat_html += message_html(msg["content"], msg["role"])
+
+        full_html = f"""
+        <div id='chatbox' class='chat-box'>
+            {chat_html}
+        </div>
+        <script>
+            var chatBox = document.getElementById("chatbox");
+            if (chatBox) {{
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }}
+        </script>
+        """
+
+        components.html(full_html, height=520)
+
+    # 💬 스타일 정의 (맨 처음 한 번만)
     st.markdown("""
         <style>
         .chat-box {
@@ -52,31 +75,7 @@ def render_chatbot():
         </style>
     """, unsafe_allow_html=True)
 
-    # chatbox placeholder 생성
-    chat_placeholder = st.empty()
-
-    def render_chatbox():
-        chat_html = ""
-        for msg in st.session_state.chat_history:
-            chat_html += message_html(msg["content"], msg["role"])
-
-        scroll_script = """
-            <script>
-                var chatBox = document.getElementById("chatbox");
-                if (chatBox) {
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
-            </script>
-        """
-
-        chat_placeholder.markdown(f"""
-            <div id='chatbox' class='chat-box'>
-                {chat_html}
-            </div>
-            {scroll_script}
-        """, unsafe_allow_html=True)
-
-    # 처음에도 채팅 박스 보여줌
+    # 최초 렌더링
     render_chatbox()
 
     # 입력창
@@ -85,7 +84,7 @@ def render_chatbot():
         submitted = st.form_submit_button("보내기")
 
     if submitted and user_input:
-        # 감정 분석 피드백
+        # 감정 분석
         polarity = TextBlob(user_input).sentiment.polarity
         if polarity < -0.3:
             st.error("😢 부정적인 감정이 감지되었어요.")
@@ -94,11 +93,12 @@ def render_chatbot():
         else:
             st.info("😐 중립적인 표현이에요.")
 
-        # 메시지 기록 추가
+        # ✅ 내 메시지를 먼저 바로 추가하고 렌더링
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
+        render_chatbox()
 
-        # GPT 응답
+        # ✅ GPT 응답 후 렌더링
         with st.spinner("GPT 친구가 생각 중..."):
             res = client.chat.completions.create(
                 model="gpt-4",
@@ -107,11 +107,8 @@ def render_chatbot():
         reply = res.choices[0].message.content
         st.session_state.chat_history.append({"role": "assistant", "content": reply})
         st.session_state.messages.append({"role": "assistant", "content": reply})
-
-        # 대화 갱신
         render_chatbox()
 
-    # 설문 돌아가기
     if st.button("↩️ 설문 다시 하기"):
         st.session_state.page = "survey"
         st.session_state.messages = []
