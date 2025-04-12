@@ -22,7 +22,7 @@ def message_html(content, role):
 
     return f"""
     <div style='display: flex; justify-content: {align}; margin: 5px 0;'>
-        <div style='max-width: 80%; background-color: {color}; padding: 10px 15px;
+        <div class='bubble' style='max-width: 80%; background-color: {color}; padding: 10px 15px;
                     border-radius: {border_radius}; text-align: left;
                     font-size: 16px; line-height: 1.4; word-wrap: break-word;
                     opacity: {opacity}; font-style: {font_style}; display: inline-flex; align-items: center;'>
@@ -78,6 +78,21 @@ def render_chatbot():
         @keyframes spin {{
           0% {{ transform: rotate(0deg); }}
           100% {{ transform: rotate(360deg); }}
+        }}
+
+        .bubble {{
+          animation: fadeInUp 0.35s ease-out;
+        }}
+
+        @keyframes fadeInUp {{
+          from {{
+            opacity: 0;
+            transform: translateY(15px);
+          }}
+          to {{
+            opacity: 1;
+            transform: translateY(0);
+          }}
         }}
         </style>
 
