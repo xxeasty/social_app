@@ -7,7 +7,6 @@ st.set_page_config(page_title="감정 친구 GPT", layout="centered")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 
-# 💬 말풍선 메시지 렌더링용 HTML 함수
 def message_html(content, role):
     color = "#DCF8C6" if role == "user" else "#F1F0F0"
     align = "flex-start" if role == "user" else "flex-end"
@@ -53,17 +52,32 @@ def render_chatbot():
         </style>
     """, unsafe_allow_html=True)
 
-    # --- 대화 HTML 조립해서 한 번에 삽입 ---
-    chat_html = ""
-    for msg in st.session_state.chat_history:
-        chat_html += message_html(msg["content"], msg["role"])
+    # chatbox placeholder 생성
+    chat_placeholder = st.empty()
 
-    # --- 출력: 말풍선 전체를 chat-box 안에 한 번에 렌더링 ---
-    st.markdown(f"""
-        <div class='chat-box'>
-            {chat_html}
-        </div>
-    """, unsafe_allow_html=True)
+    def render_chatbox():
+        chat_html = ""
+        for msg in st.session_state.chat_history:
+            chat_html += message_html(msg["content"], msg["role"])
+
+        scroll_script = """
+            <script>
+                var chatBox = document.getElementById("chatbox");
+                if (chatBox) {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            </script>
+        """
+
+        chat_placeholder.markdown(f"""
+            <div id='chatbox' class='chat-box'>
+                {chat_html}
+            </div>
+            {scroll_script}
+        """, unsafe_allow_html=True)
+
+    # 처음에도 채팅 박스 보여줌
+    render_chatbox()
 
     # 입력창
     with st.form("chat_form", clear_on_submit=True):
@@ -71,7 +85,7 @@ def render_chatbot():
         submitted = st.form_submit_button("보내기")
 
     if submitted and user_input:
-        # 감정 피드백
+        # 감정 분석 피드백
         polarity = TextBlob(user_input).sentiment.polarity
         if polarity < -0.3:
             st.error("😢 부정적인 감정이 감지되었어요.")
@@ -80,7 +94,7 @@ def render_chatbot():
         else:
             st.info("😐 중립적인 표현이에요.")
 
-        # 유저 메시지 추가
+        # 메시지 기록 추가
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
 
@@ -91,23 +105,13 @@ def render_chatbot():
                 messages=st.session_state.messages
             )
         reply = res.choices[0].message.content
-
-        # GPT 메시지 추가
         st.session_state.chat_history.append({"role": "assistant", "content": reply})
         st.session_state.messages.append({"role": "assistant", "content": reply})
 
-        # 최신 대화 다시 렌더링
-        chat_html = ""
-        for msg in st.session_state.chat_history:
-            chat_html += message_html(msg["content"], msg["role"])
+        # 대화 갱신
+        render_chatbox()
 
-        st.markdown(f"""
-            <div class='chat-box'>
-                {chat_html}
-            </div>
-        """, unsafe_allow_html=True)
-
-    # ↩️ 설문 다시 하기
+    # 설문 돌아가기
     if st.button("↩️ 설문 다시 하기"):
         st.session_state.page = "survey"
         st.session_state.messages = []
