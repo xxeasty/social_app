@@ -46,27 +46,42 @@ def render_chatbot():
 
     # ✅ chatbox 스타일 + 자동 스크롤
     components.html(f"""
-        <div id='chatbox' style="
-            height: 500px;
-            overflow-y: auto;
-            border: 2px solid #888;
-            border-radius: 16px;
-            background-color: #f2f2f2;
-            padding: 15px 10px;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-        ">
-            {chat_html}
-        </div>
-        <script>
-            const box = document.getElementById("chatbox");
-            setTimeout(() => {{
-                if (box) {{
-                    box.scrollTop = box.scrollHeight;
-                }}
-            }}, 100);
-        </script>
+    <style>
+    #chatbox::-webkit-scrollbar {{
+      width: 8px;
+    }}
+    #chatbox::-webkit-scrollbar-track {{
+      background: transparent;
+    }}
+    #chatbox::-webkit-scrollbar-thumb {{
+      background-color: #bbb;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }}
+    </style>
+
+    <div id='chatbox' style="
+        height: 500px;
+        overflow-y: auto;
+        border: 2px solid #888;
+        border-radius: 16px;
+        background-color: #ffffff;  /* ✅ 완전 하얀색 */
+        padding: 15px 10px;
+        margin-bottom: 0;           /* ✅ 공백 제거 */
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        box-sizing: border-box;
+    ">
+        {chat_html}
+    </div>
+    <script>
+        const box = document.getElementById("chatbox");
+        setTimeout(() => {{
+            if (box) {{
+                box.scrollTop = box.scrollHeight;
+            }}
+        }}, 100);
+    </script>
     """, height=530, scrolling=False)
 
     # 입력창
