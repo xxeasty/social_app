@@ -7,7 +7,7 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="감정 친구 GPT", layout="centered")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# 💬 말풍선 메시지 렌더링용 HTML 함수
+
 def message_html(content, role):
     color = "#DCF8C6" if role == "user" else "#F1F0F0"
     align = "flex-start" if role == "user" else "flex-end"
@@ -53,14 +53,12 @@ def render_chatbot():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    chat_placeholder = st.empty()
+    # ✅ chatbox 먼저 렌더링해야 위에 붙는다
+    chat_html = ""
+    for msg in st.session_state.chat_history:
+        chat_html += message_html(msg["content"], msg["role"])
 
-    def render_chatbox():
-        chat_html = ""
-        for msg in st.session_state.chat_history:
-            chat_html += message_html(msg["content"], msg["role"])
-
-        full_html = f"""
+    components.html(f"""
         <div id='chatbox' class='chat-box'>
             {chat_html}
         </div>
@@ -70,18 +68,14 @@ def render_chatbot():
                 chatBox.scrollTop = chatBox.scrollHeight;
             }}
         </script>
-        """
+    """, height=520, scrolling=False)
 
-        components.html(full_html, height=530, scrolling=False)
-
-    render_chatbox()
-
+    # ⌨️ 입력창은 항상 아래에
     with st.form("chat_form", clear_on_submit=True):
         user_input = st.text_input("입력", placeholder="친구에게 말해보세요!", label_visibility="collapsed")
         submitted = st.form_submit_button("보내기")
 
     if submitted and user_input:
-        # 감정 피드백
         polarity = TextBlob(user_input).sentiment.polarity
         if polarity < -0.3:
             st.error("😢 부정적인 감정이 감지되었어요.")
@@ -90,10 +84,8 @@ def render_chatbot():
         else:
             st.info("😐 중립적인 표현이에요.")
 
-        # ✅ 내 메시지를 먼저 보여줌
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
-        render_chatbox()
 
         # GPT 응답
         with st.spinner("GPT 친구가 생각 중..."):
@@ -102,10 +94,10 @@ def render_chatbot():
                 messages=st.session_state.messages
             )
         reply = res.choices[0].message.content
-
         st.session_state.chat_history.append({"role": "assistant", "content": reply})
         st.session_state.messages.append({"role": "assistant", "content": reply})
-        render_chatbox()
+
+        st.rerun()
 
     if st.button("↩️ 설문 다시 하기"):
         st.session_state.page = "survey"
