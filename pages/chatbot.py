@@ -86,7 +86,27 @@ def render_chatbot():
 
     st.markdown("""
     <style>
+    /* stForm 전체 여백 제거 */
     section[data-testid="stForm"] {
+        margin-top: 0px !important;
+        padding-top: 0px !important;
+    }
+
+    /* 내부 컨테이너 여백 제거 */
+    div[data-testid="stForm"] > div {
+        margin-top: 0px !important;
+        padding-top: 0px !important;
+        gap: 0px !important;
+    }
+
+    /* 전체 행 row-widget */
+    .stForm > div {
+        margin-top: 0px !important;
+        padding-top: 0px !important;
+    }
+
+    /* form 내부 입력창 자체 */
+    div[data-baseweb="input"] {
         margin-top: 0px !important;
         padding-top: 0px !important;
     }
@@ -110,19 +130,27 @@ def render_chatbot():
         # 내 메시지 먼저 출력
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
-
+        st.session_state["waiting_for_response"] = False
         st.rerun()
 
-        # GPT 응답
+    # ✅ 사용자가 메시지를 입력한 직후에만 GPT 응답
+    if (
+        len(st.session_state.chat_history) > 0
+        and st.session_state.chat_history[-1]["role"] == "user"
+        and not st.session_state.get("waiting_for_response")
+    ):
+        st.session_state["waiting_for_response"] = True
+
         with st.spinner("GPT 친구가 생각 중..."):
             res = client.chat.completions.create(
                 model="gpt-4",
                 messages=st.session_state.messages
             )
         reply = res.choices[0].message.content
+
         st.session_state.chat_history.append({"role": "assistant", "content": reply})
         st.session_state.messages.append({"role": "assistant", "content": reply})
-
+        st.session_state["waiting_for_response"] = False
         st.rerun()
 
     if st.button("↩️ 설문 다시 하기"):
