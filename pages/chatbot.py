@@ -3,6 +3,7 @@ from openai import OpenAI
 from textblob import TextBlob
 from utils.logic import make_system_message
 import streamlit.components.v1 as components
+import time
 
 st.set_page_config(page_title="감정 친구 GPT", layout="centered")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -136,6 +137,7 @@ def render_chatbot():
         st.rerun()
 
     if st.session_state.get("pending_gpt", False):
+        time.sleep(0.8)  # 💡 약간의 지연으로 자연스러운 GPT 등장 연출
         st.session_state.chat_history.append({"role": "assistant", "content": "🤖 GPT가 생각중입니다..."})
         st.session_state["waiting_for_response"] = True
         st.session_state["pending_gpt"] = False
@@ -148,12 +150,11 @@ def render_chatbot():
         and st.session_state.chat_history[-1]["content"] == "🤖 GPT가 생각중입니다..."
     ):
         try:
-            with st.spinner("GPT 친구가 생각 중..."):
-                res = client.chat.completions.create(
-                    model="gpt-4",
-                    messages=st.session_state.messages
-                )
-                reply = res.choices[0].message.content
+            res = client.chat.completions.create(
+                model="gpt-4",
+                messages=st.session_state.messages
+            )
+            reply = res.choices[0].message.content
         except Exception as e:
             reply = "⚠️ GPT 응답에 실패했어요."
             st.error(f"GPT 에러: {e}")
