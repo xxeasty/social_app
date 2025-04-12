@@ -1,6 +1,5 @@
 import streamlit as st
 from openai import OpenAI
-from textblob import TextBlob
 from utils.logic import make_system_message
 import streamlit.components.v1 as components
 import time
@@ -143,14 +142,6 @@ def render_chatbot():
             submitted = st.form_submit_button("➤")
 
     if submitted and user_input:
-        polarity = TextBlob(user_input).sentiment.polarity
-        if polarity < -0.3:
-            st.error("😢 부정적인 감정이 감지되었어요.")
-        elif polarity > 0.5:
-            st.success("😊 긍정적인 표현이에요!")
-        else:
-            st.info("😐 중립적인 표현이에요.")
-
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.session_state["pending_gpt"] = True
