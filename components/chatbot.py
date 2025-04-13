@@ -50,9 +50,11 @@ def render_chatbot(client):
     transform: translateY(15px);
     transition: all 0.3s ease-out;
 }
-.bubble.visible {
+@keyframes fadeIn {
+    to{
     opacity: 1;
     transform: translateY(0);
+                }
 }
 </style>
 """, unsafe_allow_html=True)
