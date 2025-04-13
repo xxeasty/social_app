@@ -8,6 +8,11 @@ def hide_sidebar():
     }
     [data-testid="collapsedControl"] {
         display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        position: absolute !important;
+        top: -100px !important;
     }
     </style>
     """, unsafe_allow_html=True)
