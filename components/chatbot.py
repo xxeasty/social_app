@@ -1,10 +1,19 @@
 import streamlit as st
 import streamlit.components.v1 as components
+from utils.logic import make_system_message
 
 def render_chatbot(client):
     # 세션 상태 초기화
     if "messages" not in st.session_state:
         st.session_state.messages = []
+        
+        if "survey_result" in st.session_state:
+            system_msg = make_system_message(st.session_state.survey_result)
+            st.session_state.messages.append({
+                "role": "system",
+                "content": system_msg
+        })
+
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
     if "waiting_for_response" not in st.session_state:
