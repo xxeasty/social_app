@@ -62,7 +62,7 @@ def render_chatbot(client):
         chat_html += message_html(msg["content"], msg["role"])
 
     components.html(f"""
-        <div id='chatbox' style="
+    <div id='chatbox' style="
         height: 500px;
         overflow-y: auto;
         border: 2px solid #888;
@@ -76,16 +76,18 @@ def render_chatbot(client):
         {chat_html}
     </div>
     <script>
-        const bubbles = document.querySelectorAll('.bubble');
-        bubbles.forEach((b, i) => {{
+        window.requestAnimationFrame(() => {{
             setTimeout(() => {{
-                b.classList.add("visible");
-            }}, 100 * i);  // 하나씩 순차적으로 애니메이션 적용
+                const bubbles = document.querySelectorAll('.bubble');
+                bubbles.forEach((b, i) => {{
+                    setTimeout(() => {{
+                        b.classList.add("visible");
+                    }}, i * 80);
+                }});
+                const box = document.getElementById("chatbox");
+                if (box) box.scrollTop = box.scrollHeight;
+            }}, 50);
         }});
-        const box = document.getElementById("chatbox");
-        setTimeout(() => {{
-            if (box) box.scrollTop = box.scrollHeight;
-        }}, 100 * bubbles.length + 200);
     </script>
 """, height=530, scrolling=False)
 
