@@ -24,7 +24,7 @@ def render_chatbot(client):
         color = "#DCF8C6" if role == "user" else "#F1F0F0"
         align = "flex-start" if role == "user" else "flex-end"
         border_radius = "18px 18px 18px 0px" if role == "user" else "18px 18px 0px 18px"
-        is_loading = content.strip().startswith("🤖 GPT가 생각중입니다")
+        is_loading = content.strip().startswith("GPT가 생각중입니다")
         opacity = "0.6" if is_loading else "1.0"
         font_style = "italic" if is_loading else "normal"
 
