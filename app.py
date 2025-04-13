@@ -49,7 +49,6 @@ if st.session_state.page == "home":
     st.markdown("""
     ### 📊 신뢰할 수 있는 데이터 기반 접근법
     - **40% 외로움 감소**: AI 기반 대화 시스템이 사용자들의 외로움을 해소하는 데 도움을 줍니다.
-    - **100만 명 이상의 사용자**가 이미 SocialBridge를 통해 혜택을 받고 있습니다.
     """)
 
     # Call to Action Section
