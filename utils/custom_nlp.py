@@ -2,14 +2,13 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 import nltk
 from textblob import TextBlob
 
-import nltk
 import os
+import nltk
 
 nltk_data_dir = '/tmp/nltk_data'
 nltk.download('punkt', download_dir=nltk_data_dir, quiet=True)
+nltk.data.path.append(nltk_data_dir) 
 os.environ['NLTK_DATA'] = nltk_data_dir
-
-nltk.download('vader_lexicon')
 
 # Initialize Sentiment Analyzer
 analyzer = SentimentIntensityAnalyzer()
