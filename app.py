@@ -1,7 +1,9 @@
 import streamlit as st
+from utils.ui import hide_sidebar
 from pages import survey, chatbot
 
 st.set_page_config(page_title="사회적 챗봇", layout="centered", initial_sidebar_state="collapsed")
+hide_sidebar()
 
 # 상태 초기화
 if "page" not in st.session_state:

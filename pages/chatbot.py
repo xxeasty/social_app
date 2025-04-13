@@ -1,12 +1,13 @@
 import streamlit as st
 from openai import OpenAI
 from utils.logic import make_system_message
+from utils.ui import hide_sidebar
 import streamlit.components.v1 as components
 import time
 
 st.set_page_config(page_title="감정 친구 GPT", layout="centered", initial_sidebar_state="collapsed")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
+hide_sidebar()
 
 def message_html(content, role):
     color = "#DCF8C6" if role == "user" else "#F1F0F0"

@@ -1,5 +1,8 @@
 import streamlit as st
+from utils.ui import hide_sidebar
 from utils.logic import calculate_score
+
+hide_sidebar()
 
 def render_survey():
     st.title("📝 정신 건강 설문")
@@ -31,7 +34,7 @@ def render_survey():
             "occupation": occupation,
             "symptoms": symptoms,
             "self_esteem": self_esteem,
-            "seeking_help": seeking_help,
+            "seeking_help": seeking_help,h
             "score": score
         }
         st.session_state.page = "chat"
