@@ -1,10 +1,10 @@
 import time
 import streamlit as st
 import streamlit.components.v1 as components
-from utils.logic import make_system_message, analyze_tone, recommend_activities
-from nlp_tools import analyze_sentiment, predict_personality
 
 def render_chatbot(client):
+    from utils.logic import make_system_message, analyze_tone, recommend_activities
+    from utils.custom_nlp import analyze_sentiment, predict_personality
     # Initialize session state variables
     if "messages" not in st.session_state:
         st.session_state.messages = []
