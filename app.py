@@ -4,6 +4,9 @@ from components.chatbot import render_chatbot
 from components.survey import render_survey
 from utils.ui import hide_sidebar
 
+import nltk
+nltk.download('punkt', quiet=True)
+
 # 초기 설정
 st.set_page_config(page_title="사회성 기르기 챗봇", layout="centered")
 hide_sidebar()
