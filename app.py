@@ -8,4 +8,4 @@ st.title("👋 사회적 상호작용 챗봇")
 st.write("원하시는 기능을 선택해주세요.")
 
 if st.button("🧠 설문 시작하기"):
-    st.switch_page("pages/2_survey")
+    st.switch_page("2_survey")
