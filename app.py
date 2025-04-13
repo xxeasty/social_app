@@ -18,9 +18,9 @@ client = OpenAI()
 # ✅ 화면 전환
 if st.session_state.page == "home":
     st.title("사회적 기르기 챗봇")
-    st.write("원하시는 기능을 선택해주세요.")
+    st.write("외로움 해소하로 바로 가기.")
 
-    if st.button("설문 시작하기"):
+    if st.button("시작하기"):
         st.session_state.page = "survey"
 
 elif st.session_state.page == "survey":
