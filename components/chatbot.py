@@ -5,7 +5,12 @@ import streamlit.components.v1 as components
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
+
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 from utils.logic import make_system_message, analyze_tone, recommend_activities
 from nlp_tools import analyze_sentiment, predict_personality
 
