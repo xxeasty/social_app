@@ -1,3 +1,4 @@
+import time
 import streamlit as st
 import streamlit.components.v1 as components
 from utils.logic import make_system_message
@@ -12,7 +13,7 @@ def render_chatbot(client):
             st.session_state.messages.append({
                 "role": "system",
                 "content": system_msg
-        })
+            })
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
@@ -42,7 +43,7 @@ def render_chatbot(client):
         </div>
         """
 
-    # 💬 CSS 스타일
+    # 💅 CSS 스타일
     st.markdown("""
     <style>
     .bubble {
@@ -110,15 +111,19 @@ def render_chatbot(client):
         with col2:
             submitted = st.form_submit_button("➤")
 
-    # 💬 사용자 입력 처리
+    # ✅ 사용자 입력 처리
     if submitted and user_input:
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
+
+        # ⏱ 약간의 딜레이 후 GPT 타이핑 중 표시
+        time.sleep(0.4)
+
         st.session_state.chat_history.append({"role": "assistant", "content": "🤖 GPT가 생각중입니다..."})
         st.session_state["waiting_for_response"] = True
         st.rerun()
 
-    # 💬 GPT 응답 생성
+    # ✅ GPT 응답 처리
     if (
         st.session_state.get("waiting_for_response")
         and len(st.session_state.chat_history) > 0
