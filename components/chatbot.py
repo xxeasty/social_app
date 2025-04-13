@@ -42,29 +42,20 @@ def render_chatbot(client):
         """
 
     st.markdown("""
-    <style>
-    .bubble {
-        display: inline-block;
-        max-width: 80%;
-        opacity: 0;
-        transform: translateY(15px);
-        transition: all 0.3s ease-out;
-    }
-    .bubble.visible {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    #chatbox::-webkit-scrollbar {
-      width: 8px;
-    }
-    #chatbox::-webkit-scrollbar-thumb {
-      background-color: #bbb;
-      border-radius: 8px;
-      border: 2px solid transparent;
-      background-clip: content-box;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+<style>
+.bubble {
+    display: inline-block;
+    max-width: 80%;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: all 0.3s ease-out;
+}
+.bubble.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+</style>
+""", unsafe_allow_html=True)
 
     chat_html = ""
     for msg in st.session_state.chat_history:
@@ -72,31 +63,31 @@ def render_chatbot(client):
 
     components.html(f"""
         <div id='chatbox' style="
-            height: 500px;
-            overflow-y: auto;
-            border: 2px solid #888;
-            border-radius: 16px;
-            background-color: #ffffff;
-            padding: 15px 10px;
-            margin-bottom: 0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-        ">
-            {chat_html}
-        </div>
-        <script>
-            const observer = new MutationObserver(() => {{
-                document.querySelectorAll('.bubble').forEach(el => {{
-                    if (!el.classList.contains('visible')) {{
-                        setTimeout(() => el.classList.add('visible'), 30);
-                    }}
-                }});
-                const box = document.getElementById("chatbox");
-                if (box) box.scrollTop = box.scrollHeight;
-            }});
-            observer.observe(document.getElementById("chatbox"), {{ childList: true, subtree: true }});
-        </script>
-    """, height=530, scrolling=False)
+        height: 500px;
+        overflow-y: auto;
+        border: 2px solid #888;
+        border-radius: 16px;
+        background-color: #ffffff;
+        padding: 15px 10px;
+        margin-bottom: 0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        box-sizing: border-box;
+    ">
+        {chat_html}
+    </div>
+    <script>
+        const bubbles = document.querySelectorAll('.bubble');
+        bubbles.forEach((b, i) => {{
+            setTimeout(() => {{
+                b.classList.add("visible");
+            }}, 100 * i);  // 하나씩 순차적으로 애니메이션 적용
+        }});
+        const box = document.getElementById("chatbox");
+        setTimeout(() => {{
+            if (box) box.scrollTop = box.scrollHeight;
+        }}, 100 * bubbles.length + 200);
+    </script>
+""", height=530, scrolling=False)
 
     with st.form("chat_form", clear_on_submit=True):
         col1, col2 = st.columns([8, 1])
