@@ -1,11 +1,15 @@
 import time
 import streamlit as st
 import streamlit.components.v1 as components
+
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.logic import make_system_message, analyze_tone, recommend_activities
 from nlp_tools import analyze_sentiment, predict_personality
 
 def render_chatbot(client):
-    # Initialize session state variables
     if "messages" not in st.session_state:
         st.session_state.messages = []
         if "survey_result" in st.session_state:
