@@ -4,9 +4,6 @@ from components.chatbot import render_chatbot
 from components.survey import render_survey
 from utils.ui import hide_sidebar
 
-import nltk
-nltk.download('punkt', quiet=True)
-
 # 초기 설정
 st.set_page_config(page_title="사회성 기르기 챗봇", layout="centered")
 hide_sidebar()
@@ -28,7 +25,7 @@ if st.session_state.page == "home":
     """)
 
     # Hero Image Section
-    st.image("https://pplx-res.cloudinary.com/image/upload/v1744518924/user_uploads/mOPKfSjYzbxSxRT/Screenshot-2025-04-08-at-8.42.57-PM.jpg", caption="SocialBridge의 비전", use_column_width=True)
+    #st.image("https://pplx-res.cloudinary.com/image/upload/v1744518924/user_uploads/mOPKfSjYzbxSxRT/Screenshot-2025-04-08-at-8.42.57-PM.jpg", caption="SocialBridge의 비전", use_column_width=True)
 
     # Key Features Section
     st.markdown("""
