@@ -94,14 +94,14 @@ def render_chatbot(client):
     with st.form("chat_form", clear_on_submit=True):
         col1, col2 = st.columns([8, 1])
         with col1:
-            user_input = st.text_input("", placeholder="친구에게 말해보세요!", label_visibility="collapsed")
+            user_input = st.text_input("", placeholder="메세지를 입력하세요.", label_visibility="collapsed")
         with col2:
             submitted = st.form_submit_button("➤")
 
     if submitted and user_input:
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
-        st.session_state["message_pending"] = "🤖 GPT가 생각중입니다..."
+        st.session_state["message_pending"] = "GPT가 생각중입니다..."
         st.rerun()
 
     if st.session_state.get("message_pending"):
@@ -115,7 +115,7 @@ def render_chatbot(client):
         st.session_state.get("waiting_for_response")
         and len(st.session_state.chat_history) > 0
         and st.session_state.chat_history[-1]["role"] == "assistant"
-        and st.session_state.chat_history[-1]["content"].startswith("🤖 GPT가 생각중입니다")
+        and st.session_state.chat_history[-1]["content"].startswith("GPT가 생각중입니다")
     ):
         try:
             res = client.chat.completions.create(

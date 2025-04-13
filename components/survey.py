@@ -2,7 +2,7 @@ import streamlit as st
 from utils.logic import calculate_score
 
 def render_survey():
-    st.title("📝 정신 건강 설문")
+    st.title("상태 체크 설문")
 
     with st.form("survey_form"):
         gender = st.selectbox("성별", ["남성", "여성", "기타/선택 안 함"])
