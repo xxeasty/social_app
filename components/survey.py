@@ -34,7 +34,7 @@ def render_survey():
             "occupation": occupation,
             "symptoms": symptoms,
             "self_esteem": self_esteem,
-            "seeking_help": seeking_help,h
+            "seeking_help": seeking_help,
             "score": score
         }
         st.session_state.page = "chat"
