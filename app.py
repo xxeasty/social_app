@@ -20,8 +20,8 @@ if st.session_state.page == "home":
     st.title("👋 사회적 상호작용 챗봇")
     st.write("원하시는 기능을 선택해주세요.")
 
-    if st.button("💬 챗봇 사용하기"):
-        st.session_state.page = "chat"
+    if st.button("🧠 설문 시작하기"):
+        st.session_state.page = "survey"
 
 elif st.session_state.page == "survey":
     render_survey()
