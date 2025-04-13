@@ -9,7 +9,7 @@ def render_chatbot(client):
         st.session_state.messages = []
         
         if "survey_result" in st.session_state:
-            system_msg = make_system_message(st.session_state.survey_result)
+            system_msg = make_system_message(st.session_state["survey_result"])
             st.session_state.messages.append({
                 "role": "system",
                 "content": system_msg
@@ -19,6 +19,8 @@ def render_chatbot(client):
         st.session_state.chat_history = []
     if "waiting_for_response" not in st.session_state:
         st.session_state["waiting_for_response"] = False
+    if "message_pending" not in st.session_state:
+        st.session_state["message_pending"] = None
 
     # 💬 말풍선 생성 함수
     def message_html(content, role, is_latest=False):
@@ -43,19 +45,19 @@ def render_chatbot(client):
         </div>
         """
 
-    # 💅 CSS 스타일
+    # 💅 CSS + JS for animation
     st.markdown("""
     <style>
     .bubble {
         display: inline-block;
         max-width: 80%;
+        opacity: 0;
+        transform: translateY(15px);
+        transition: all 0.3s ease-out;
     }
-    .animate {
-        animation: fadeInUp 0.3s ease-out;
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
+    .bubble.visible {
+        opacity: 1;
+        transform: translateY(0);
     }
     #chatbox::-webkit-scrollbar {
       width: 8px;
@@ -94,11 +96,11 @@ def render_chatbot(client):
             {chat_html}
         </div>
         <script>
+            const bubbles = document.querySelectorAll('.bubble');
+            bubbles.forEach(b => setTimeout(() => b.classList.add("visible"), 30));
             const box = document.getElementById("chatbox");
             setTimeout(() => {{
-                if (box) {{
-                    box.scrollTop = box.scrollHeight;
-                }}
+                if (box) box.scrollTop = box.scrollHeight;
             }}, 100);
         </script>
     """, height=530, scrolling=False)
@@ -111,19 +113,22 @@ def render_chatbot(client):
         with col2:
             submitted = st.form_submit_button("➤")
 
-    # ✅ 사용자 입력 처리
+    # ✅ 사용자 메시지만 우선 등록
     if submitted and user_input:
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         st.session_state.messages.append({"role": "user", "content": user_input})
-
-        # ⏱ 약간의 딜레이 후 GPT 타이핑 중 표시
-        time.sleep(0.4)
-
-        st.session_state.chat_history.append({"role": "assistant", "content": "🤖 GPT가 생각중입니다..."})
-        st.session_state["waiting_for_response"] = True
+        st.session_state["message_pending"] = "🤖 GPT가 생각중입니다..."
         st.rerun()
 
-    # ✅ GPT 응답 처리
+    # ✅ 0.4초 후 GPT 타이핑 말풍선 등록
+    if st.session_state.get("message_pending"):
+        time.sleep(0.4)
+        st.session_state.chat_history.append({"role": "assistant", "content": st.session_state["message_pending"]})
+        st.session_state["waiting_for_response"] = True
+        st.session_state["message_pending"] = None
+        st.rerun()
+
+    # ✅ GPT 응답 생성 및 치환
     if (
         st.session_state.get("waiting_for_response")
         and len(st.session_state.chat_history) > 0
