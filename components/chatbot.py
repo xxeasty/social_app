@@ -76,13 +76,13 @@ def render_chatbot(client):
         {chat_html}
     </div>
     <script>
-        window.requestAnimationFrame(() => {{
+      document.addEventListener("DOMContentLoaded", function () {{
             setTimeout(() => {{
                 const bubbles = document.querySelectorAll('.bubble');
                 bubbles.forEach((b, i) => {{
                     setTimeout(() => {{
                         b.classList.add("visible");
-                    }}, i * 80);
+                    }}, i * 100);
                 }});
                 const box = document.getElementById("chatbox");
                 if (box) box.scrollTop = box.scrollHeight;
