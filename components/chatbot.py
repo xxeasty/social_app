@@ -138,45 +138,50 @@ def render_chatbot(client):
     </script>
 """, height=530, scrolling=False)
 
-    # Sidebar for progress tracking and feedback
-    with st.sidebar:
-        st.header("사회화 진행 상태")
-        progress_value = 0
-        if st.session_state["readiness_assessment"] == "initial":
-            progress_value = 0.2
-            status_text = "초기 단계"
-        elif st.session_state["readiness_assessment"] == "progressing":
-            progress_value = 0.6
-            status_text = "발전 단계"
-        elif st.session_state["readiness_assessment"] == "ready":
-            progress_value = 1.0
-            status_text = "준비 완료"
-            
-        st.progress(progress_value)
-        st.markdown(f"**현재 상태**: {status_text}")
-        
-        # Show interaction score
-        st.markdown(f"**소통 점수**: {st.session_state['interaction_score']}/100")
-        
-        # Show recent feedback
-        st.markdown("### 최근 피드백")
-        if st.session_state["feedback_history"]:
-            for feedback in st.session_state["feedback_history"][-3:]:
-                st.markdown(f"- {feedback}")
-        
-        # Community recommendations when ready
-        if st.session_state["readiness_assessment"] == "ready":
-            st.markdown("### 추천 지역 활동")
-            activities = recommend_activities(st.session_state["survey_result"])
-            for activity in activities:
-                st.markdown(f"- {activity}")
-            
-            if st.button("활동 참여 가이드 보기"):
-                st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": "지역 활동 참여를 위한 단계별 가이드:\n1. 참여 전 미리 활동 내용을 검토하세요\n2. 소규모 모임부터 시작하세요\n3. 미리 간단한 자기소개를 준비해두세요\n4. 처음에는 관찰자로 참여해도 괜찮습니다\n5. 한 번에 긴 시간 참여하기보다 짧게 여러 번 참여하세요"
-                })
-                st.rerun()
+
+status_col, score_col = st.columns([3, 1])
+
+with status_col:
+    st.subheader("사회화 진행 상태")
+    progress_value = 0
+    status_text = "초기 단계"
+    
+    if st.session_state["readiness_assessment"] == "initial":
+        progress_value = 0.2
+        status_text = "초기 단계"
+    elif st.session_state["readiness_assessment"] == "progressing":
+        progress_value = 0.6
+        status_text = "발전 단계"
+    elif st.session_state["readiness_assessment"] == "ready":
+        progress_value = 1.0
+        status_text = "준비 완료"
+
+    st.progress(progress_value)
+    st.markdown(f"**현재 상태**: {status_text}")
+
+with score_col:
+    st.subheader("소통 점수")
+    st.metric(label="현재 점수", value=f"{st.session_state['interaction_score']}/100")
+
+# 최근 피드백
+st.markdown("### 최근 피드백")
+if st.session_state["feedback_history"]:
+    for feedback in st.session_state["feedback_history"][-3:]:
+        st.markdown(f"- {feedback}")
+
+# 지역 활동 추천
+if st.session_state["readiness_assessment"] == "ready":
+    st.markdown("### 추천 지역 활동")
+    activities = recommend_activities(st.session_state["survey_result"])
+    for activity in activities:
+        st.markdown(f"- {activity}")
+
+    if st.button("활동 참여 가이드 보기"):
+        st.session_state.chat_history.append({
+            "role": "assistant",
+            "content": "지역 활동 참여를 위한 단계별 가이드:\n1. 참여 전 미리 활동 내용을 검토하세요\n2. 소규모 모임부터 시작하세요\n3. 미리 간단한 자기소개를 준비해두세요\n4. 처음에는 관찰자로 참여해도 괜찮습니다\n5. 한 번에 긴 시간 참여하기보다 짧게 여러 번 참여하세요"
+        })
+        st.rerun()
 
     # Input form
     with st.form("chat_form", clear_on_submit=True):
