@@ -1,6 +1,7 @@
 import time
 import streamlit as st
 import streamlit.components.v1 as components
+import traceback
 
 def render_chatbot(client):
     from utils.logic import make_system_message, analyze_tone, recommend_activities
@@ -257,6 +258,7 @@ def render_chatbot(client):
                     
         except Exception as e:
             reply = "⚠️ GPT 응답에 실패했어요."
+            traceback.print_exc()
             st.error(f"GPT 에러: {e}")
 
         # Update chat history with response
