@@ -13,7 +13,7 @@ if "page" not in st.session_state:
     st.session_state.page = "home"
 
 # 클라이언트 인스턴스
-client = OpenAI()
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # 화면 전환
 if st.session_state.page == "home":

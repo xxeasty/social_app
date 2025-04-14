@@ -13,16 +13,20 @@ def make_system_message(survey_result):
     """
     gender = survey_result.get("gender", "알 수 없음")
     occupation = survey_result.get("occupation", "알 수 없음")
+    symptoms = survey_result.get("symptoms", "알 수 없음")
     self_esteem = survey_result.get("self_esteem", "알 수 없음")
     seeking_help = survey_result.get("seeking_help", "알 수 없음")
+    score = survey_result.get("score", "알 수 없음")
     
     message = (
-        f"사용자의 기본 정보:\n"
+        f"사용자 정보:\n"
         f"- 성별: {gender}\n"
         f"- 직업 또는 상태: {occupation}\n"
+        f"- 증상 및 징후 : {symptoms}\n"
         f"- 자존감 상태: {self_esteem}\n"
-        f"- 최근 도움 요청 여부: {seeking_help}\n\n"
-        f"사용자의 상태를 기반으로 대화를 시작합니다."
+        f"- 최근 도움 요청 여부: {seeking_help}\n"
+        f"- 심리적 불안정 점수 : {score}\n\n"
+        f"위 사용자의 상태를 기반으로 대화를 시작합니다."
     )
     return message
 
