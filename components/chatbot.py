@@ -139,7 +139,7 @@ def render_chatbot(client):
 """, height=530, scrolling=False)
 
 
-status_col, score_col = st.columns([3, 1])
+    status_col, score_col = st.columns([3, 1])
 
     with status_col:
         st.subheader("사회화 진행 상태")
